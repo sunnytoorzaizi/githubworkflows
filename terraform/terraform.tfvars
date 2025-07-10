@@ -1,0 +1,1 @@
+s3bucketname = "sunnytestbucket2"
