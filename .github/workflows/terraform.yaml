@@ -1,356 +1,46 @@
----
-#name: Trigger on pull_request (plan) and push (apply) events with conditional job stages based on plan file.
+name: Terraform Workflow
 
 on:
+  push:
+    branches:
+      - main  # Or your desired branch
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
-
-permissions:
-  actions: read        # Required to identify workflow run.
-  checks: write        # Required to add TF status summary.
-  contents: read       # Required to checkout repository.
-  id-token: write      # Required to request the JWT.
-  pull-requests: write # Required to add comment and label.
-
-env:
-  arg-chdir: ${{ vars.WORKING_DIR }}
-  arg-workspace: ""
-  arg-backend-config: backend-config.auto.tfvars
-  arg-var: ""
-  arg-var-file: ""
-  arg-target: ""
-  arg-replace: ""
-  arg-destroy: ""
 
 jobs:
-  getEnvironment:
+  terraform:
     runs-on: ubuntu-latest
-
-    outputs:
-      env: ${{ steps.env.outputs.env }}
     steps:
-      - name: Determine environment
-        id: env
-        run: echo "env=zaizicloud" >> "$GITHUB_OUTPUT" # This is temporary as there is one environment. How this should be determined is another conversation.
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  plan:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-
-    needs: getEnvironment
-
-    environment: ${{ needs.getEnvironment.outputs.env }}
-
-    outputs:
-      artifact_id: ${{ steps.plantf.outputs.plan-id }}
-      identifier: ${{ steps.plantf.outputs.identifier }}
-      exitcode: ${{ steps.plantf.outputs.exitcode }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.2.1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          role-to-assume: ${{ vars.AWS_PLAN_ROLE }}
-          #role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ vars.AWS_REGION }}
+          terraform_version: 1.7.4 # specify your desired version
 
-      - name: Setup TF
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
+      - name: Terraform Init
+        id: init
+        run: terraform init
 
-      - name: Plan TF
-        id: plantf
-        uses: op5dev/tf-via-pr@v13
-        with:
-          working-directory: ${{ env.arg-chdir }}
-          command: plan
-          preserve-plan: "true"
-          plan-encrypt: ${{ secrets.PASSPHRASE }}
-          arg-backend-config: ${{ env.arg-backend-config }}
-          arg-get: "true"
-          arg-refresh: "false"
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
 
-      #- name: Secret PASSPHRASE
-      #  run: echo ${{secrets.PASSPHRASE}} | sed 's/./& /g'
-      # To get back to normal without spaces, use: var='xxxxxxx' && echo $var | tr -d ' '
-      # ^ is useful if you want to manually inspect a previous tfplan. You can decrypt it using the openssl command found in the apply stage
-
-  security:
-    needs: [ getEnvironment, plan ] # will only run if the "plan" job is successful and the plan includes changes to infrastructure
-    runs-on: ubuntu-latest
-
-    if: needs.plan.outputs.exitcode == 2 && github.event_name == 'pull_request'
-
-    environment: ${{ needs.getEnvironment.outputs.env }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      #- name: Setup TF
-      #  uses: hashicorp/setup-terraform@v3
-      #  with:
-      #    terraform_wrapper: false
-
-      #- name: Configure AWS credentials
-      #  uses: aws-actions/configure-aws-credentials@v4.2.1
-      #  with:
-      #    role-to-assume: ${{ vars.AWS_PLAN_ROLE }}
-      #    #role-session-name: GitHub_to_AWS_via_FederatedOIDC
-      #    aws-region: ${{ vars.AWS_REGION }}
-
-      #- name: Download tfplan
-      #  uses: actions/download-artifact@v4
-      #  with:
-      #    artifact-ids: ${{ needs.plan.outputs.artifact_id }}
-      #    path: .
-
-      #- name: Decrypt tfplan
-      #  env:
-      #    GH_TOKEN: ${{ github.token }}
-      #    pass: ${{ secrets.PASSPHRASE }} # For use with "plan-encrypt".
-      #  run: |
-      #    echo "Decrypt tfplan."
-      #    temp=$(mktemp)
-      #    printf "%s" "$pass" > "$temp"
-      #    openssl enc -aes-256-ctr -pbkdf2 -salt -in "./${{ needs.plan.outputs.identifier }}/tfplan.encrypted" -out "./${{ needs.plan.outputs.identifier }}/tfplan.decrypted" -pass file:"$temp" -d
-      #    mv "./${{ needs.plan.outputs.identifier }}/tfplan.decrypted" "./${{ needs.plan.outputs.identifier }}/tfplan"
-
-      #- name: Terraform init
-      #  uses: op5dev/tf-via-pr@v13
-      #  id: inittf
-      #  with:
-      #    working-directory: ${{ env.arg-chdir }}
-      #    command: init
-      #    arg-backend-config: ${{ env.arg-backend-config }}
-      #    arg-get: "true"
-      #    arg-refresh: "false"
-
-      #- name: Convert tfplan to json
-      #  working-directory: ${{ vars.WORKING_DIR }}
-      #  run: terraform show -no-color -json ../${{ needs.plan.outputs.identifier }}/tfplan > tfplan.json
-
-      #- name: Run Snyk to check TF plan for issues
-      #  id: snyk
-      #  uses: snyk/actions/iac@master
-      #  continue-on-error: true
-      #  env:
-      #    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #  with:
-      #    file: tfplan.json
-      #    args: --severity-threshold=high
-
-      - name: Run Trivy vulnerability scanner in IaC mode
-        id: trivy
-        uses: aquasecurity/trivy-action@0.31.0
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan
         continue-on-error: true
+
+      - name: Create Terraform Plan Artifact
+        uses: actions/upload-artifact@v3
+        if: steps.plan.outcome == 'failure'
         with:
-          scan-type: 'config'
-          hide-progress: true
-          output: trivy.txt
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
-          scan-ref: ${{ vars.WORKING_DIR }}
-        env:
-          TRIVY_IGNOREFILE: ${{ vars.WORKING_DIR }}/.trivyignore.yaml # Ignore file has to be fed this way to Trivy - it doesn't work any other way.
-          #format: 'sarif'
-          #output: 'trivy-results.sarif'
+          name: terraform-plan
+          path: tfplan
 
-      # The .sarif upload doesn't work because we don't have GitHub Advanced CodeScanning enabled. Best thing I can think of is just to upload the security results in the GHA summary
-
-      #- name: cat sarif
-      #  run: cat trivy-results.sarif
-
-      #- name: Upload Trivy & Snyk scan results to GitHub Security tab
-      #  uses: github/codeql-action/upload-sarif@v3
-      #  with:
-      #    sarif_file: 'trivy-results.sarif'
-
-      - name: Publish Trivy Output to Summary
-        run: |
-          if [[ -s trivy.txt ]]; then
-            {
-              echo "### Security Output"
-              echo "<details><summary>Click to expand</summary>"
-              echo ""
-              echo '```terraform'
-              cat trivy.txt
-              echo '```'
-              echo "</details>"
-            } >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Upload Trivy output as artifact # 6 vulnerabilities uses 6.7k/10k max summary characters so upload as artifact to ensure full output can be seen/reviewed.
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: trivy.txt
-          path: trivy.txt
-
-      - name: Fail after uploading results if Snyk or Trivy fails
-        if: steps.trivy.outcome == 'failure' #|| steps.snyk.outcome == 'failure'
-        run: exit 1
-
-  approval:
-    needs: [ getEnvironment]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    environment: ${{ needs.getEnvironment.outputs.env }}
-
-    steps:
-      - name: Send approval
-        uses: TigerWest/slack-approval@v1.1.0
-        env:
-          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-        timeout-minutes: 5
-        with:
-            # Aaron, Sunny, Jim
-            approvers: U05Q22M1220, U01NJAP869Z, U01JWFB15JN
-            minimumApprovalCount: 2
-            baseMessagePayload: |
-              {
-              "blocks": [{
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "*GitHub Actions Approval Request* - ${{ needs.getEnvironment.outputs.env }}"
-              }},
-              {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*GitHub Actor:*\n${{ github.actor }}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Repos:*\n${{ github.server_url }}/${{ github.repository }}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Actions URL:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Environment:*\n${{ needs.getEnvironment.outputs.env }}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Workflow:*\n${{ github.workflow }}"
-                }
-              ]}]}
-            #successMessagePayload: |
-            #  {}
-            #failMessagePayload: |
-            #  {}
-
-  apply:
-    needs: [ getEnvironment, approval ]
-    if: needs.approval.result == 'success' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    environment: ${{ needs.getEnvironment.outputs.env }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.2.1
-        with:
-          role-to-assume: ${{ vars.AWS_APPLY_ROLE }}
-          #role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Setup TF
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Set arguments
-        id: arg
-        run: |
-          # Populate variables.
-          # Environment variables.
-          echo "GH_API=X-GitHub-Api-Version:2022-11-28" >> "$GITHUB_ENV"
-          echo "GH_TOKEN=${{ github.token }}" >> "$GITHUB_ENV"
-          echo "TF_CLI_ARGS=$([[ -n "${{ env.TF_CLI_ARGS }}" ]] && echo "${{ env.TF_CLI_ARGS }} -no-color" || echo "-no-color")" >> "$GITHUB_ENV"
-          echo "TF_IN_AUTOMATION=true" >> "$GITHUB_ENV"
-          echo "TF_INPUT=false" >> "$GITHUB_ENV"
-          echo "TF_WORKSPACE=$TF_WORKSPACE" >> "$GITHUB_ENV"
-          echo "GH_HOST=$(echo $GITHUB_SERVER_URL | sed 's/.*:\/\///')" >> "$GITHUB_ENV"
-
-          # CLI arguments.
-          echo arg-backend-config=$([[ -n "${{ env.arg-backend-config }}" ]] && echo " -backend-config=${{ env.arg-backend-config }}" | sed "s/,/ -backend-config=/g" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-chdir=$([[ -n "${{ env.arg-chdir || env.working-directory }}" ]] && echo " -chdir=${{ env.arg-chdir || env.working-directory }}" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-destroy=$([[ -n "${{ env.arg-destroy }}" ]] && echo " -destroy" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-replace=$([[ -n "${{ env.arg-replace }}" ]] && echo " -replace=${{ env.arg-replace }}" | sed "s/,/ -replace=/g" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-target=$([[ -n "${{ env.arg-target }}" ]] && echo " -target=${{ env.arg-target }}" | sed "s/,/ -target=/g" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-var-file=$([[ -n "${{ env.arg-var-file }}" ]] && echo " -var-file=${{ env.arg-var-file }}" | sed "s/,/ -var-file=/g" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-var=$([[ -n "${{ env.arg-var }}" ]] && echo " -var=${{ env.arg-var }}" | sed "s/,/ -var=/g" || echo "") >> "$GITHUB_OUTPUT"
-          echo arg-workspace=$([[ -n "$TF_WORKSPACE" ]] && echo " -workspace=$TF_WORKSPACE" || echo "") >> "$GITHUB_OUTPUT"
-
-      - name: Calculate ID
-        id: id
-        run: |
-          # Find unique identifier.
-          # Get PR number using GitHub API for different event triggers.
-          if [[ "${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "repository_dispatch" || "${{ github.event_name }}" == "workflow_call" || "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "workflow_run" ]]; then
-            # List PRs associated with the commit, then get the PR number from the head ref or the latest PR.
-            associated_prs=$(gh api /repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha || github.sha }}/pulls --header "$GH_API" --method GET --field per_page=100)
-            pr_number=$(echo "$associated_prs" | jq --raw-output '(.[] | select(.head.ref == "${{ github.ref_name }}") | .number) // .[0].number // 0')
-          elif [[ "${{ github.event_name }}" == "merge_group" ]]; then
-            # Get the PR number by parsing the ref name.
-            pr_number=$(echo "${{ github.ref_name }}" | sed -n 's/.*pr-\([0-9]*\)-.*/\1/p')
-          else
-            # Get the PR number from branch name, otherwise fallback on 0 if the PR number is not found.
-            pr_number=${{ github.event.number || github.event.issue.number }} || $(gh api /repos/${{ github.repository }}/pulls --header "$GH_API" --method GET --field per_page=100 --field head="${{ github.ref_name || github.head_ref || github.ref || '0' }}" | jq '.[0].number // 0')
-          fi
-          echo "pr=$pr_number" >> "$GITHUB_OUTPUT"
-
-          # Generate identifier for the workflow run using MD5 hashing algorithm for concise and unique naming.
-          identifier="${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-workspace }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }}${{ steps.arg.outputs.arg-destroy }}"
-          identifier=$(echo -n "$identifier" | md5sum | awk '{print $1}')
-          echo "name=terraform-${pr_number}-${identifier}.tfplan" >> "$GITHUB_OUTPUT"
-
-      - name: Download workflow artifact
-        uses: dawidd6/action-download-artifact@v11 #Can't use GitHubs official artifactDownload action as it can only download artifacts for the current workflow execution and can't download artifacts from a previous workflow execution.
-        with:
-          name: ${{ steps.id.outputs.name }}
-          path: ${{ vars.WORKING_DIR }}
-          pr: ${{ steps.id.outputs.pr }}
-
-      - name: List base dir after download tfplan
-        run: find ${{ vars.WORKING_DIR }} | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/"
-
-      - name: Decrypt tfplan
-        id: decrypt
-        env:
-          path: ${{ vars.WORKING_DIR }}/tfplan
-        run: |
-          # Decrypt plan file.
-          temp_file=$(mktemp)
-          printf "%s" "${{ secrets.PASSPHRASE }}" > "$temp_file"
-          openssl enc -aes-256-ctr -pbkdf2 -salt -in "$path.encrypted" -out "$path.decrypted" -pass file:"$temp_file" -d
-          mv --force --verbose "$path.decrypted" "$path"
-          echo "path=$path" >> "$GITHUB_OUTPUT"
-
-      - name: Apply TF
-        uses: op5dev/tf-via-pr@v13
-        with:
-          working-directory: ${{ vars.WORKING_DIR }}
-          command: apply
-          plan-file: tfplan
-          arg-auto-approve: true
-          arg-backend-config: ${{ env.arg-backend-config }}
+      - name: Terraform Apply
+        id: apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.plan.outcome != 'failure'
+        run: terraform apply -auto-approve tfplan
