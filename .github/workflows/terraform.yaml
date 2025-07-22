@@ -1,37 +1,31 @@
 name: Terraform Workflow
 
 on:
-  push:
-    branches:
-      - main  # Or your desired branch
-  pull_request:
-    branches:
-      - main
-
-permissions:
-  contents: read       # Required to checkout repository.
-  id-token: write      # Required to request the JWT.
-
-env:
-  AWS_REGION: "eu-west-2"
+  workflow_call:
+    inputs:
+      aws_region:
+        required: true
+        type: string
+      role_to_assume:
+        required: true
+        type: string
+# permissions:
+#   contents: read       # Required to checkout repository.
+#   id-token: write      # Required to request the JWT.
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Git clone the repository
         uses: actions/checkout@v3
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::758354230027:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
-          aws-region: eu-west-2
+          role-to-assume: ${{ inputs.role_to_assume }} #change to reflect your IAM role’s ARN
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
