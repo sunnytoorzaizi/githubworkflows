@@ -9,9 +9,9 @@ on:
       role_to_assume:
         required: true
         type: string
-# permissions:
-#   contents: read       # Required to checkout repository.
-#   id-token: write      # Required to request the JWT.
+permissions:
+   contents: read       # Required to checkout repository.
+   id-token: write      # Required to request the JWT.
 
 jobs:
   terraform:
