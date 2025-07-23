@@ -3,12 +3,13 @@ name: Terraform Workflow
 on:
   workflow_call:
     inputs:
-      aws_region:
-        required: true
-        type: string
       role_to_assume:
         required: true
         type: string
+      aws_region:
+        required: true
+        type: string
+
 permissions:
    contents: read       # Required to checkout repository.
    id-token: write      # Required to request the JWT.
