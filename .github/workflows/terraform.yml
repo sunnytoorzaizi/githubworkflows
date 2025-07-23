@@ -60,5 +60,4 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.plan.outcome != 'failure'
         run: terraform apply -auto-approve tfplan
