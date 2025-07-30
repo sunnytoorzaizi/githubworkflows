@@ -18,6 +18,10 @@ on:
       terraform-execution-iam-role-arn:
         required: true
         type: string
+      working-directory:
+        required: true
+        type: string
+
 
 
 
