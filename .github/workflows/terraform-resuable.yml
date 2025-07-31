@@ -53,7 +53,7 @@ jobs:
           tf-version: ${{ inputs.tf-version }}
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
-          terraform-execution-iam-role-arn: ${{ secrets.terraform-execution-iam-plan-role-arn }}
+          terraform-execution-iam-role-arn: ${{ inpputs.terraform-execution-iam-plan-role-arn }}
     #   - name: Terraform Plan
     #     id: plan
     #     uses: ./composite/.github/actions/terraform-plan
