@@ -30,8 +30,8 @@ defaults:
     shell: bash
 
 jobs:
-  terraform-plan:
-    name: Terraform Plan
+  terraform-init:
+    name: Terraform init
     runs-on: ubuntu-latest
     defaults:
       run:
