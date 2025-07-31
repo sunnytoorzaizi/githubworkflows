@@ -23,7 +23,6 @@ runs:
         terraform_wrapper: ${{ inputs.terraform-wrapper }}
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
-      if: ${{ inputs.local-execution-mode == 'true' }}
       with:
         role-to-assume: ${{ inputs.terraform-execution-iam-role-arn }}
         aws-region: ${{ inputs.aws-region }}
