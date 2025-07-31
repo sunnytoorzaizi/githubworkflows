@@ -21,7 +21,9 @@ on:
       working_directory:
         required: true
         type: string
-
+      terraform-wrapper:
+        required: true
+        type: boolean
 
 
 
