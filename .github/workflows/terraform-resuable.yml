@@ -24,6 +24,9 @@ on:
       terraform-wrapper:
         required: true
         type: boolean
+      deploy:
+        requried: true
+        type: boolean
 
 
 
@@ -54,16 +57,13 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
           terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
-    #   - name: Terraform Plan
-    #     id: plan
-    #     uses: ./composite/.github/actions/terraform-plan
-    #     with:
-    #       github-token: ${{ secrets.GITHUB_TOKEN }}
-    #       deploy: ${{ inputs.deploy }}
-    #       aws-region: ${{ inputs.aws-region }}
-    #       environment: ${{ inputs.environment }}
-    #       init-outcome: ${{ steps.init.outputs.outcome }}
-    #       extra-args: ${{ secrets.extra-args }}
+      - name: Terraform Plan
+        id: plan
+        uses: ./composite/.github/actions/terraform-plan
+        with:
+          deploy: ${{ inputs.deploy }}
+          aws-region: ${{ inputs.aws-region }}
+          init-outcome: ${{ steps.init.outputs.outcome }}
 #   terraform-apply:
 #     needs: [terraform-plan]
 #     name: Terraform Apply
