@@ -50,7 +50,6 @@ runs:
       shell: bash
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
-          -var-file=envs/terraform.tfvars \
           -var="region=${{ inputs.aws-region }}" \
           -no-color \
           -detailed-exitcode \
