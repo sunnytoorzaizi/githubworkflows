@@ -25,7 +25,7 @@ on:
         required: true
         type: boolean
       deploy:
-        requried: true
+        required: true
         type: boolean
 
 
