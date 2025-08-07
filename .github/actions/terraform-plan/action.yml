@@ -40,7 +40,7 @@ runs:
       run: |
         if ${{ inputs.deploy }}
         then
-          echo "PLAN_COMMAND=terraform plan " >> $GITHUB_OUTPUT
+          echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
         fi
