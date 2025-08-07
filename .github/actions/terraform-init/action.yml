@@ -27,3 +27,7 @@ runs:
         role-to-assume: ${{ inputs.terraform-execution-iam-role-arn }}
         aws-region: ${{ inputs.aws-region }}
         role-duration-seconds: 1200
+    - name: Directory Contents
+      id: dircheck
+      shell: bash
+      run: ls -al
