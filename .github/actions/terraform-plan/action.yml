@@ -50,12 +50,12 @@ runs:
       run: echo "::add-mask::${{ inputs.extra-args }}"
     - name: Terraform Plan
       id: plan
+      working_directory: ./terraform
       continue-on-error: true
       shell: bash
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
           -var="region=${{ inputs.aws-region }}" \
-          -var-file="terraform/terraform.tfvars" \
           -no-color \
           -detailed-exitcode \
           -input=false \
