@@ -9,7 +9,7 @@ on:
       aws_region:
         required: true
         type: string
-      working_directory:
+      working-directory:
         required: true
         type: string
 
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./${{ inputs.working_directory }}
+        working-directory: ./${{ inputs.working-directory }}
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
