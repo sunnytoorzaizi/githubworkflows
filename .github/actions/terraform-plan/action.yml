@@ -40,7 +40,7 @@ runs:
       run: |
         if ${{ inputs.deploy }}
         then
-          echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
+          echo "PLAN_COMMAND=terraform plan " >> $GITHUB_OUTPUT
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
         fi
@@ -55,6 +55,7 @@ runs:
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
           -var="region=${{ inputs.aws-region }}" \
+          -var-file="${{ inputs.working_directory }}" \
           -no-color \
           -detailed-exitcode \
           -input=false \
