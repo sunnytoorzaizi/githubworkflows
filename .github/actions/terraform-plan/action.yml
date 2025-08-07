@@ -55,7 +55,7 @@ runs:
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
           -var="region=${{ inputs.aws-region }}" \
-          -var-file="${{ inputs.working_directory }}" \
+          -var-file="${{ inputs.working_directory }}/terraform.tfvars" \
           -no-color \
           -detailed-exitcode \
           -input=false \
