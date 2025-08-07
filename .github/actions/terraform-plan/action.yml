@@ -30,6 +30,10 @@ runs:
       continue-on-error: true
       shell: bash
       run: terraform validate -no-color
+    - name: Directory Contents
+      id: dircheck
+      shell: bash
+      run: ls
     - name: Define Terraform Plan Command # 'terraform plan' or 'terraform plan -destroy'
       id: tf_plan_command
       shell: bash
