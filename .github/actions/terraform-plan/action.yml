@@ -32,10 +32,11 @@ runs:
       continue-on-error: true
       shell: bash
       run: terraform validate -no-color
-    # - name: Directory Contents
-    #   id: dircheck
-    #   shell: bash
-    #   run: ls
+    - name: Directory Contents
+      id: dircheck
+      shell: bash
+      run: ls
+      working-directory: terraform
     - name: Define Terraform Plan Command # 'terraform plan' or 'terraform plan -destroy'
       id: tf_plan_command
       working-directory: terraform
@@ -56,9 +57,15 @@ runs:
       working-directory: terraform
       continue-on-error: true
       shell: bash
+      # run: |
+      #   ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
+      #     -var="region=${{ inputs.aws-region }}" \
+      #     -no-color \
+      #     -detailed-exitcode \
+      #     -input=false \
+      #     ${{ inputs.extra-args }} | tee plan.out
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
-          -var="region=${{ inputs.aws-region }}" \
           -no-color \
           -detailed-exitcode \
           -input=false \
