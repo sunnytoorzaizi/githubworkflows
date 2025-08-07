@@ -27,9 +27,6 @@ on:
       deploy:
         required: true
         type: boolean
-      working-directory:
-        required: true
-        type: string
 
 
 
