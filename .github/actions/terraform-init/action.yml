@@ -18,7 +18,6 @@ runs:
   steps:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
-      working-directory: terraform
       with:
         terraform_version: ${{ inputs.tf-version }}
         terraform_wrapper: ${{ inputs.terraform-wrapper }}
