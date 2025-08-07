@@ -32,8 +32,8 @@ runs:
       shell: bash
       run: terraform init
       working-directory: terraform
-    # - name: Directory Contents working dir
-    #   id: dircheck-wkr-dir
-    #   shell: bash
-    #   run: ls -al
-    #   working-directory: terraform
+    - name: Directory Contents working dir
+      id: dircheck-wkr-dir
+      shell: bash
+      run: ls -al
+      working-directory: terraform
