@@ -44,6 +44,10 @@ runs:
       if: ${{ inputs.extra-args != '' }}
       shell: bash
       run: echo "::add-mask::${{ inputs.extra-args }}"
+    - name: contents
+      id: dircheck
+      shell: bash
+      run: pwd && ls
     - name: Terraform Plan
       id: plan
       continue-on-error: true
