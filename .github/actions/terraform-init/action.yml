@@ -31,3 +31,8 @@ runs:
       id: dircheck
       shell: bash
       run: ls -al
+    - name: Directory Contents working dir
+      id: dircheck-wkr-dir
+      shell: bash
+      run: ls -al
+      working-directory: terraform
