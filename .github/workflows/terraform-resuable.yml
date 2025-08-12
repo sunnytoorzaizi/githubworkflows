@@ -64,52 +64,76 @@ jobs:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
-      
-  terraform-apply:
-    needs: [terraform-plan]
-    name: Terraform Apply
-    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2)
+
+  terraform-plan:
+    name: Terraform plan
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Checkout composite actions
         uses: actions/checkout@v4
         with:
-          repository: aws-samples/aws-terraform-reusable-workflow
-          ref: ${{ inputs.ref }}
+          repository: sunnytoorzaizi/githubworkflows
           path: composite
-      - name: Terraform Init
-        id: init
-        uses: ./composite/.github/actions/terraform-init
+      - name: Terraform Plan
+        id: plan
+        uses: ./composite/.github/actions/terraform-plan
         with:
-          tf-version: ${{ inputs.tf-version }}
+          deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
-          terraform-wrapper: false
-          local-execution-mode: ${{ inputs.local-execution-mode }}
-          terraform-execution-iam-role-arn: ${{ secrets.terraform-execution-iam-apply-role-arn }}
-          setup-python: ${{ inputs.setup-python }}
-          python-version: ${{ inputs.python-version }}
-      - name: Define Terraform Apply Command # 'terraform apply' or 'terraform destroy'
-        id: tf_apply_command
-        run: |
-          if ${{ inputs.deploy }}
-          then
-            echo "APPLY_COMMAND=terraform apply" >> $GITHUB_OUTPUT
-          else
-            echo "APPLY_COMMAND=terraform destroy" >> $GITHUB_OUTPUT
-          fi
-      - name: Terraform Apply
-        run: |
-          ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} \
-            -var-file=envs/${{ inputs.environment }}/terraform.tfvars \
-            -var="region=${{ inputs.aws-region }}" \
-            -var="environment=${{ inputs.environment }}" \
-            -auto-approve \
-            -input=false \
-            ${{ secrets.extra-args }}
+          init-outcome: ${{ steps.init.outputs.outcome }}
+          terraform-wrapper: ${{ inputs.terraform-wrapper }}
+          terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
+
+  # terraform-apply:
+  #   needs: [terraform-init]
+  #   name: Terraform Apply
+  #   if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2)
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: ${{ inputs.environment }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Checkout composite actions
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: aws-samples/aws-terraform-reusable-workflow
+  #         ref: ${{ inputs.ref }}
+  #         path: composite
+  #     - name: Terraform Init
+  #       id: init
+  #       uses: ./composite/.github/actions/terraform-init
+  #       with:
+  #         tf-version: ${{ inputs.tf-version }}
+  #         aws-region: ${{ inputs.aws-region }}
+  #         terraform-wrapper: false
+  #         local-execution-mode: ${{ inputs.local-execution-mode }}
+  #         terraform-execution-iam-role-arn: ${{ secrets.terraform-execution-iam-apply-role-arn }}
+  #         setup-python: ${{ inputs.setup-python }}
+  #         python-version: ${{ inputs.python-version }}
+  #     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform destroy'
+  #       id: tf_apply_command
+  #       run: |
+  #         if ${{ inputs.deploy }}
+  #         then
+  #           echo "APPLY_COMMAND=terraform apply" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "APPLY_COMMAND=terraform destroy" >> $GITHUB_OUTPUT
+  #         fi
+  #     - name: Terraform Apply
+  #       run: |
+  #         ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} \
+  #           -var-file=envs/${{ inputs.environment }}/terraform.tfvars \
+  #           -var="region=${{ inputs.aws-region }}" \
+  #           -var="environment=${{ inputs.environment }}" \
+  #           -auto-approve \
+  #           -input=false \
+  #           ${{ secrets.extra-args }}
 
 #   deactivate-deployment:
 #     needs: [terraform-apply]
