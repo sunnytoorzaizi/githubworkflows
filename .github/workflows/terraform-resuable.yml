@@ -64,30 +64,37 @@ jobs:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
-
-  terraform-plan:
-    name: Terraform plan
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Checkout composite actions
-        uses: actions/checkout@v4
-        with:
-          repository: sunnytoorzaizi/githubworkflows
-          path: composite
-      - name: Terraform Plan
+      - name: Terraform Apply
         id: plan
-        uses: ./composite/.github/actions/terraform-plan
+        uses: ./composite/.github/actions/terraform-apply
         with:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
-          terraform-wrapper: ${{ inputs.terraform-wrapper }}
-          terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
+
+  # terraform-plan:
+  #   name: Terraform plan
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ${{ inputs.working-directory }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Checkout composite actions
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: sunnytoorzaizi/githubworkflows
+  #         path: composite
+  #     - name: Terraform Plan
+  #       id: plan
+  #       uses: ./composite/.github/actions/terraform-plan
+  #       with:
+  #         deploy: ${{ inputs.deploy }}
+  #         aws-region: ${{ inputs.aws-region }}
+  #         init-outcome: ${{ steps.init.outputs.outcome }}
+  #         terraform-wrapper: ${{ inputs.terraform-wrapper }}
+  #         terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
 
   # terraform-apply:
   #   needs: [terraform-init]
