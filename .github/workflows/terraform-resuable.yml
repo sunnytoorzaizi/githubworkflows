@@ -49,7 +49,7 @@ jobs:
         with:
           repository: sunnytoorzaizi/githubworkflows
           path: composite
-      - name: Terraform Plan
+      - name: Terraform Init
         id: init
         uses: ./composite/.github/actions/terraform-init
         with:
@@ -64,6 +64,7 @@ jobs:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
+      
 #   terraform-apply:
 #     needs: [terraform-plan]
 #     name: Terraform Apply
