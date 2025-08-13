@@ -20,6 +20,34 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ inputs.tf-version }}
+        terraform_wrapper: ${{ inputs.terraform-wrapper }}
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.terraform-execution-iam-role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+        role-duration-seconds: 1200
+    - name: Download Artifacts
+    - name: Download plan.tfout
+      uses: actions/download-artifact@v4
+      with:
+        name: plan.tfout
+        path: terraform/plan.tfout
+    - name: Download .terraform.lock.hcl
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-lock
+        path: terraform/.terraform.lock.hcl
+        include-hidden-files: true
+    - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
+      id: tf_apply_command
+      working-directory: terraform
+      shell: bash
+      run: ls -al
     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
       id: tf_apply_command
       working-directory: terraform
@@ -35,6 +63,7 @@ runs:
       if: ${{ inputs.extra-args != '' }}
       shell: bash
       run: echo "::add-mask::${{ inputs.extra-args }}"
+    - name: Terraform Init
     - name: Terraform Apply
       id: apply
       working-directory: terraform
@@ -50,7 +79,7 @@ runs:
       run: |
         ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} \
           -no-color \
-          -input=false \
+          -input=false 
           ${{ inputs.extra-args }} | tee apply.out
     # - name: Comment Pull Request
     #   uses: actions/github-script@v6
