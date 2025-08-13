@@ -60,7 +60,7 @@ runs:
           ${{ inputs.extra-args }} | tee plan.out
     #new code here
     - name: Upload Terraform Plan
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: terraform-plan
         path: terraform/plan.tfout #you can adapt the path to your terraform plan file
@@ -70,7 +70,7 @@ runs:
       run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 
     - name: Upload .terraform.lock.hcl
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: terraform-workspace
         path: /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
