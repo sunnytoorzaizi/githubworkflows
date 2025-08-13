@@ -57,7 +57,7 @@ runs:
           -no-color \
           -detailed-exitcode \
           -input=false \
-          ${{ inputs.extra-args }} | tee plan.out
+          ${{ inputs.extra-args }} | tee plan.tfout
     #new code here
     - name: list
       id: list
