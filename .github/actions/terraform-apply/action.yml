@@ -47,11 +47,7 @@ runs:
         name: terraform-lock
         path: terraform/.terraform.lock.hcl
         include-hidden-files: true
-    - name: List dir contents # 'terraform apply' or 'terraform apply -destroy'
-      id: list-contents
-      working-directory: terraform
-      shell: bash
-      run: ls -al
+
     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
       id: tf_apply_command
       working-directory: terraform
