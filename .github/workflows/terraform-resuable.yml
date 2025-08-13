@@ -73,6 +73,8 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       # - name: Terraform Init
       #   id: init
       #   uses: ./composite/.github/actions/terraform-init
