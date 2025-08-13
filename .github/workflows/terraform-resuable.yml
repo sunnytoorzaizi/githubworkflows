@@ -65,7 +65,7 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
       - name: Terraform Apply
-        id: plan
+        id: applys
         uses: ./composite/.github/actions/terraform-apply
         with:
           deploy: ${{ inputs.deploy }}
