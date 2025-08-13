@@ -82,6 +82,7 @@ jobs:
       #     terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
       - name: Terraform Apply
         id: applies
+        needs: terraform-plan
         uses: ./composite/.github/actions/terraform-apply
         with:
           deploy: ${{ inputs.deploy }}
