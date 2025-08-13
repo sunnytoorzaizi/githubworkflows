@@ -52,84 +52,29 @@ runs:
       working-directory: terraform
       continue-on-error: true
       shell: bash
-      # run: |
-      #   ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
-      #     -var="region=${{ inputs.aws-region }}" \
-      #     -no-color \
-      #     -detailed-exitcode \
-      #     -input=false \
-      #     ${{ inputs.extra-args }} | tee plan.out
       run: |
         ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
           -no-color \
           -detailed-exitcode \
           -input=false \
           ${{ inputs.extra-args }} | tee plan.out
-    # - name: Comment Pull Request
-    #   uses: actions/github-script@v6
-    #   if: github.event_name == 'pull_request'
-    #   with:
-    #     github-token: ${{ inputs.github-token }}
-    #     script: |
-    #       // 1. Retrieve existing bot comments for the PR
-    #       const { data: comments } = await github.rest.issues.listComments({
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         issue_number: context.issue.number,
-    #       })
-    #       const botComment = comments.find(comment => {
-    #         return comment.user.type === 'Bot' && comment.body.includes('${{ github.workflow }} ${{ inputs.environment }}')
-    #       })
+    #new code here
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-plan
+        path: terraform/plan.tfout #you can adapt the path to your terraform plan file
 
-    #       // 2. Prepare format of the comment
-    #       const run_url = process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID
-    #       const run_link = '<a href="' + run_url + '">Actions</a>.'
-    #       const fs = require('fs')
-    #       const plan_file = fs.readFileSync('plan.out', 'utf8')
-    #       const plan = plan_file.length > 65000 ? plan_file.toString().substring(0, 65000) + " ..." : plan_file
-    #       const truncated_message = plan_file.length > 65000 ? "Output is too long and was truncated. You can read full Plan in " + run_link + "<br /><br />" : ""
+    - name: Copy .terraform.lock.hcl to workspace
+      run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 
-    #       const output = `## ${{ github.workflow }} - ${{ inputs.environment }}
-    #       #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-    #       #### Terraform Initialization ⚙️\`${{ inputs.init-outcome }}\`
-    #       #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-    #       <details><summary>Validation Output</summary>
-
-    #       \`\`\`\n
-    #       ${{ steps.validate.outputs.stdout }}
-    #       \`\`\`
-
-    #       </details>
-
-    #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-
-    #       <details><summary>Show Plan</summary>
-
-    #       \`\`\`\n
-    #       ${plan}
-    #       \`\`\`
-
-    #       </details>
-    #       ${truncated_message}
-
-    #       *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ github.workspace }}\`, Workflow: \`${{ github.workflow }} ${{ inputs.environment }}\`*`;
-
-    #       // 3. If we have a comment, update it, otherwise create a new one
-    #       if (botComment) {
-    #         github.rest.issues.updateComment({
-    #           owner: context.repo.owner,
-    #           repo: context.repo.repo,
-    #           comment_id: botComment.id,
-    #           body: output
-    #         })
-    #       } else {
-    #         github.rest.issues.createComment({
-    #           issue_number: context.issue.number,
-    #           owner: context.repo.owner,
-    #           repo: context.repo.repo,
-    #           body: output
-    #         })
-    #       }
+    - name: Upload .terraform.lock.hcl
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-workspace
+        path: /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
+        include-hidden-files: true
+    #new code ends here
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'
       shell: bash
