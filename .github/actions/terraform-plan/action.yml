@@ -66,6 +66,7 @@ runs:
         path: terraform/plan.tfout #you can adapt the path to your terraform plan file
 
     - name: Copy .terraform.lock.hcl to workspace
+      shell: bash
       run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 
     - name: Upload .terraform.lock.hcl
