@@ -57,17 +57,19 @@ runs:
           -no-color \
           -detailed-exitcode \
           -input=false \
-          ${{ inputs.extra-args }} | tee plan.out
+          ${{ inputs.extra-args }} | tee plan.tfout
     #new code here
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
       with:
         name: terraform-plan
-        path: terraform/plan.tfout #you can adapt the path to your terraform plan file
+#        path: terraform/plan.tfout #you can adapt the path to your terraform plan file
+        path: plan.tfout #you can adapt the path to your terraform plan file
 
     - name: Copy .terraform.lock.hcl to workspace
       shell: bash
-      run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
+#      run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
+      run: cp .terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 
     - name: Upload .terraform.lock.hcl
       uses: actions/upload-artifact@v4
