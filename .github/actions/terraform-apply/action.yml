@@ -50,7 +50,8 @@ runs:
       run: |
         ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} \
           -no-color \
-          -detailed-exitcode 
+          -input=false \
+          ${{ inputs.extra-args }} | tee apply.out
     # - name: Comment Pull Request
     #   uses: actions/github-script@v6
     #   if: github.event_name == 'pull_request'
