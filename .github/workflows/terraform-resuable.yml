@@ -75,6 +75,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Checkout composite actions
+        uses: actions/checkout@v4
+        with:
+          repository: sunnytoorzaizi/githubworkflows
+          path: composite
       # - name: Terraform Init
       #   id: init
       #   uses: ./composite/.github/actions/terraform-init
