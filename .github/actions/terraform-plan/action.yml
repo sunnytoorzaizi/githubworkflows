@@ -67,7 +67,6 @@ runs:
       run: ls -al
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
-      working-directory: terraform
       with:
         name: terraform-plan
 #        path: terraform/plan.tfout #you can adapt the path to your terraform plan file
