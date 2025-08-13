@@ -35,8 +35,8 @@ defaults:
       shell: bash
 
 jobs:
-  terraform-init:
-    name: Terraform init
+  terraform-run:
+    name: Terraform Run
     runs-on: ubuntu-latest
     defaults:
       run:
