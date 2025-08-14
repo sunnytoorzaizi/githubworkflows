@@ -82,7 +82,7 @@ jobs:
           path: composite
       - name: Terraform Init
         id: init
-        uses: ./composite/.github/actions/terraform-init
+        uses: ./composite/.github/actions/setup-worker
         with:
           tf-version: ${{ inputs.tf-version }}
           aws-region: ${{ inputs.aws-region }}
