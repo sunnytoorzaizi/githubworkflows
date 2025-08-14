@@ -42,7 +42,7 @@ runs:
       run: terraform init -upgrade -migrate-state
       working-directory: terraform
     - name: remove old lock file
-      id: remove old lock
+      id: remove-old-lock
       working-directory: terraform
       shell: bash
       run: rm terraform.lock.hcl
