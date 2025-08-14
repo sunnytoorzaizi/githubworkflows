@@ -27,9 +27,14 @@ runs:
         role-to-assume: ${{ inputs.terraform-execution-iam-role-arn }}
         aws-region: ${{ inputs.aws-region }}
         role-duration-seconds: 1200
+    # - name: Terraform init
+    #   id: tfinit
+    #   shell: bash
+    #   run: terraform init
+    #   working-directory: terraform
     - name: Terraform init
       id: tfinit
       shell: bash
-      run: terraform init
+      run: terraform init -upgrade -migrate-state
       working-directory: terraform
 
