@@ -69,7 +69,9 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: terraform-plan
-        path: terraform/plan.tfout #you can adapt the path to your terraform plan file
+        path: |
+          terraform/plan.tfout
+          terraform/.terraform*
 
 #     - name: Copy .terraform.lock.hcl to workspace
 #       shell: bash
@@ -77,11 +79,11 @@ runs:
 # #      run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 #       run: cp .terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
 
-    - name: Upload .terraform.lock.hcl
-      uses: actions/upload-artifact@v4
-      with:
-        name: terraform-lock
-        path: terraform/.terraform.lock.hcl
+    # - name: Upload .terraform.lock.hcl
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: terraform-lock
+    #     path: terraform/.terraform.lock.hcl
         include-hidden-files: true
     #new code ends here
     - name: Terraform Plan Status
