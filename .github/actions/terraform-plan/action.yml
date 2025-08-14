@@ -58,7 +58,7 @@ runs:
           -detailed-exitcode \
           -input=false \
           -out="plan.tfout"
-          ${{ inputs.extra-args }} | tee plan.log
+          ${{ inputs.extra-args }}
     #new code here
     - name: list
       id: list
