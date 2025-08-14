@@ -65,6 +65,27 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
 
+manual-approval:
+    name: manual approval
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    if: success()
+
+    permissions:
+      issues: write
+      contents: read
+
+    steps: 
+      - name: Await for manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: sunnytoorzaizi , fghauri-zaizi #add the usernames of the users who can approve the deployment
+          minimum-approvals: 1 #specify the number of approvals needed
+          issue-title: "Manual Approval Required for Terraform Apply"
+          issue-body: "Please approve or deny the deployment."
+          exclude-workflow-initiator-as-approver: false
+
   terraform-apply:
     name: Terraform apply
     runs-on: ubuntu-latest
