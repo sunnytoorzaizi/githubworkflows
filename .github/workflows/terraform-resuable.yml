@@ -88,11 +88,6 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
           terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
-      # - name: List dir contents 
-      #   id: list-contents
-      #   working-directory: terraform
-      #   shell: bash
-      #   run: ls -al
       - name: Terraform Apply
         id: apply
         uses: ./composite/.github/actions/terraform-apply
