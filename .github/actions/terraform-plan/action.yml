@@ -72,7 +72,7 @@ runs:
         name: terraform-plan
         path: |
           terraform/plan.tfout
-          terraform/.terraform*
+          terraform/.terraform.lock.hcl
 
 #     - name: Copy .terraform.lock.hcl to workspace
 #       shell: bash
