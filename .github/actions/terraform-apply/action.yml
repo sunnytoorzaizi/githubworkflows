@@ -53,7 +53,11 @@ runs:
     #     name: terraform-lock
     #     path: terraform/.terraform.lock.hcl
     #     include-hidden-files: true
-
+    - name: Terraform init
+      id: tfinit
+      shell: bash
+      run: terraform init
+      working-directory: terraform
     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
       id: tf_apply_command
       working-directory: terraform
