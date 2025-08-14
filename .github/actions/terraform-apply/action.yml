@@ -82,9 +82,8 @@ runs:
       #     -input=false \
       #     ${{ inputs.extra-args }} | tee apply.out
       run: |
-        ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} ./plan.tfout \
+        ${{ steps.tf_apply_command.outputs.APPLY_COMMAND }} plan.tfout \
           -no-color \
-          -input=false
           ${{ inputs.extra-args }} | tee apply.out
     # - name: Comment Pull Request
     #   uses: actions/github-script@v6
