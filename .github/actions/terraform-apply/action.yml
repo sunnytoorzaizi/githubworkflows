@@ -31,16 +31,22 @@ runs:
         role-to-assume: ${{ inputs.terraform-execution-iam-role-arn }}
         aws-region: ${{ inputs.aws-region }}
         role-duration-seconds: 1200
-    - name: List dir contents # 'terraform apply' or 'terraform apply -destroy'
-      id: list-contents
-      working-directory: terraform
-      shell: bash
-      run: ls -al
+    # - name: List dir contents # 'terraform apply' or 'terraform apply -destroy'
+    #   id: list-contents
+    #   working-directory: terraform
+    #   shell: bash
+    #   run: ls -al
     - name: Download plan.tfout
       uses: actions/download-artifact@v4
       with:
         name: terraform-plan
         path: terraform
+        merge-multiple: true
+    - name: List dir contents # 'terraform apply' or 'terraform apply -destroy'
+      id: list-contents
+      working-directory: terraform
+      shell: bash
+      run: ls -al
     # - name: Download .terraform.lock.hcl
     #   uses: actions/download-artifact@v4
     #   with:
