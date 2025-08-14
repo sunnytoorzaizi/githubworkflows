@@ -59,13 +59,12 @@ runs:
           -input=false \
           -out="plan.tfout"
           ${{ inputs.extra-args }}
-    #new code here
-    - name: list
-      id: list
-      working-directory: terraform
-      continue-on-error: true
-      shell: bash
-      run: ls -al
+    # - name: list
+    #   id: list
+    #   working-directory: terraform
+    #   continue-on-error: true
+    #   shell: bash
+    #   run: ls -al
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
       with:
@@ -73,20 +72,7 @@ runs:
         path: |
           terraform/plan.tfout
           terraform/.terraform.lock.hcl
-
-#     - name: Copy .terraform.lock.hcl to workspace
-#       shell: bash
-#       working-directory: terraform
-# #      run: cp terraform/.terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
-#       run: cp .terraform.lock.hcl /home/runner/work/sunnytoorzaizi/githubworkflows/terraform/.terraform.lock.hcl
-
-    # - name: Upload .terraform.lock.hcl
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: terraform-lock
-    #     path: terraform/.terraform.lock.hcl
         include-hidden-files: true
-    #new code ends here
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'
       shell: bash
