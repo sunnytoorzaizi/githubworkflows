@@ -36,6 +36,16 @@ runs:
     #   working-directory: terraform
     #   shell: bash
     #   run: ls -al
+    - name: Terraform init
+      id: tfinit
+      shell: bash
+      run: terraform init -upgrade -migrate-state
+      working-directory: terraform
+    - name: remove old lock file
+      id: remove old lock
+      working-directory: terraform
+      shell: bash
+      run: rm terraform.lock.hcl
     - name: Download plan.tfout
       uses: actions/download-artifact@v4
       with:
@@ -53,11 +63,7 @@ runs:
     #     name: terraform-lock
     #     path: terraform/.terraform.lock.hcl
     #     include-hidden-files: true
-    - name: Terraform init
-      id: tfinit
-      shell: bash
-      run: terraform init
-      working-directory: terraform
+
     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
       id: tf_apply_command
       working-directory: terraform
