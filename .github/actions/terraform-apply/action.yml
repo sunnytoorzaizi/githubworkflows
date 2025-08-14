@@ -40,13 +40,13 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-plan
-        path: terraform/plan.tfout
-    - name: Download .terraform.lock.hcl
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-lock
-        path: terraform/.terraform.lock.hcl
-        include-hidden-files: true
+        path: terraform
+    # - name: Download .terraform.lock.hcl
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: terraform-lock
+    #     path: terraform/.terraform.lock.hcl
+    #     include-hidden-files: true
 
     - name: Define Terraform Apply Command # 'terraform apply' or 'terraform apply -destroy'
       id: tf_apply_command
