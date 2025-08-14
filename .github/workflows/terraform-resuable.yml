@@ -80,19 +80,22 @@ jobs:
         with:
           repository: sunnytoorzaizi/githubworkflows
           path: composite
+      # - name: Terraform Init
+      #   id: init
+      #   uses: ./composite/.github/actions/setup-worker
+      #   with:
+      #     tf-version: ${{ inputs.tf-version }}
+      #     aws-region: ${{ inputs.aws-region }}
+      #     terraform-wrapper: ${{ inputs.terraform-wrapper }}
+      #     terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
       - name: Terraform Init
         id: init
-        uses: ./composite/.github/actions/setup-worker
+        uses: ./composite/.github/actions/terraform-init
         with:
           tf-version: ${{ inputs.tf-version }}
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
           terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
-      # - name: List dir contents 
-      #   id: list-contents
-      #   working-directory: terraform
-      #   shell: bash
-      #   run: ls -al
       - name: Terraform Apply
         id: apply
         uses: ./composite/.github/actions/terraform-apply
