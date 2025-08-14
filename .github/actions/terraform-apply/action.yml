@@ -41,11 +41,16 @@ runs:
       shell: bash
       run: terraform init -upgrade -migrate-state
       working-directory: terraform
-    - name: remove old lock file
-      id: remove-old-lock
+    - name: List dir contents pre-pull # 'terraform apply' or 'terraform apply -destroy'
+      id: list-contents-pre-pull
       working-directory: terraform
       shell: bash
-      run: rm terraform.lock.hcl
+      run: ls -al
+    # - name: remove old lock file
+    #   id: remove-old-lock
+    #   working-directory: terraform
+    #   shell: bash
+    #   run: rm terraform.lock.hcl
     - name: Download plan.tfout
       uses: actions/download-artifact@v4
       with:
