@@ -16,7 +16,7 @@ inputs:
   working-directory:
     required: true
     description: "The Directory where the terraform stack lives on the Repository"
-    default: "terraform"
+    # default: "terraform"
 
 runs:
   using: "composite"
