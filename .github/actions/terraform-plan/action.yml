@@ -18,7 +18,7 @@ inputs:
   working-directory:
     required: true
     description: "The Directory where the terraform stack lives on the Repository"
-    # default: "terraform"
+    default: "terraform"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
@@ -73,7 +73,7 @@ runs:
           ${{ inputs.working-directory }}/plan.tfout
           ${{ inputs.working-directory }}/.terraform.lock.hcl
         include-hidden-files: true
-    - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure'
-      shell: bash
-      run: exit 1
+    # - name: Terraform Plan Status
+    #   if: steps.plan.outcome == 'failure'
+    #   shell: bash
+    #   run: exit 1

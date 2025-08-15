@@ -84,8 +84,8 @@ jobs:
             secret: ${{ github.TOKEN }}
             approvers: sunnytoorzaizi , fghauri-zaizi #add the usernames of the users who can approve the deployment
             minimum-approvals: 1 #specify the number of approvals needed
-            issue-title: "Manual Approval Required for Terraform Apply"
-            issue-body: "Please approve or deny the deployment."
+            issue-title: "Manual Approval Required for Terraform Plan (Please read the instructions)"
+            issue-body: "Please review the plan from the previous job."
             exclude-workflow-initiator-as-approver: false
 
   terraform-apply:
