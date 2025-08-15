@@ -55,7 +55,7 @@ runs:
       run: echo "::add-mask::${{ inputs.extra-args }}"
     - name: Terraform Plan
       id: plan
-      working-directory: ${{ inputs.working-direcory }}
+      working-directory: ${{ inputs.working-directory }}
       continue-on-error: true
       shell: bash
       run: |
@@ -70,8 +70,8 @@ runs:
       with:
         name: terraform-plan
         path: |
-          ${{ inputs.working-direcory }}/plan.tfout
-          ${{ inputs.working-direcory }}/.terraform.lock.hcl
+          ${{ inputs.working-directory }}/plan.tfout
+          ${{ inputs.working-directory }}/.terraform.lock.hcl
         include-hidden-files: true
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'

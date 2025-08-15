@@ -21,6 +21,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Check Variable
+      shell: bash
+      run: echo "${{ inputs.working-directory }}"
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -36,5 +39,5 @@ runs:
       id: tfinit
       shell: bash
       run: terraform init -upgrade -migrate-state
-      working-directory: ${{ inputs.working-direcory }}
+      working-directory: ${{ inputs.working-directory }}
 
