@@ -13,6 +13,10 @@ inputs:
   extra-args:
     required: false
     description: "Terraform apply command extra arguments"
+  working-directory:
+    required: true
+    description: "The Directory where the terraform stack lives on the Repository"
+    default: "terraform"
 outputs:
   exitcode:
     description: "Terraform Apply Exit code"
@@ -24,11 +28,11 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-plan
-        path: terraform
+        path: ${{ inputs.working-direcory }}
         merge-multiple: true
     - name: Define Terraform Apply Command
       id: tf_apply_command
-      working-directory: terraform
+      working-directory: ${{ inputs.working-direcory }}
       shell: bash
       run: |
         if ${{ inputs.deploy }}
@@ -43,7 +47,7 @@ runs:
       run: echo "::add-mask::${{ inputs.extra-args }}"
     - name: Terraform Apply
       id: apply
-      working-directory: terraform
+      working-directory: ${{ inputs.working-direcory }}
       continue-on-error: true
       shell: bash
       run: |
