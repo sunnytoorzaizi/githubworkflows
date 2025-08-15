@@ -57,6 +57,7 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
           terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
+          working-directory: ${{ inputs.working-directory }}
       - name: Terraform Plan
         id: plan
         uses: ./composite/.github/actions/terraform-plan
@@ -64,6 +65,7 @@ jobs:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
+          working-directory: ${{ inputs.working-directory }}
 
   manual-approval:
       name: manual approval
@@ -75,7 +77,7 @@ jobs:
         issues: write
         contents: read
 
-      steps: 
+      steps:
         - name: Await for manual approval
           uses: trstringer/manual-approval@v1
           with:
@@ -109,6 +111,7 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
           terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
+          working-directory: ${{ inputs.working-directory }}
       - name: Terraform Apply
         id: apply
         uses: ./composite/.github/actions/terraform-apply
@@ -116,3 +119,4 @@ jobs:
           deploy: ${{ inputs.deploy }}
           aws-region: ${{ inputs.aws-region }}
           init-outcome: ${{ steps.init.outputs.outcome }}
+          working-directory: ${{ inputs.working-directory }}
