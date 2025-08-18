@@ -15,9 +15,9 @@ on:
       aws-region:
         required: true
         type: string
-      terraform-execution-iam-role-arn:
-        required: true
-        type: string
+      # terraform-execution-iam-role-arn:
+      #   required: true
+      #   type: string
       terraform-wrapper:
         required: true
         type: boolean
