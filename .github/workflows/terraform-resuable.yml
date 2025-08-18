@@ -29,7 +29,7 @@ on:
         type: string
     secrets:
       AWS_ASSUME_ROLE:
-        Required: true
+        required: true
 
 
 
