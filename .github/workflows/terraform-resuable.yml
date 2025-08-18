@@ -113,7 +113,7 @@ jobs:
           tf-version: ${{ inputs.tf-version }}
           aws-region: ${{ inputs.aws-region }}
           terraform-wrapper: ${{ inputs.terraform-wrapper }}
-          terraform-execution-iam-role-arn: ${{ inputs.terraform-execution-iam-role-arn }}
+          terraform-execution-iam-role-arn: ${{ secrets.AWS_ASSUME_ROLE }}
           working-directory: ${{ inputs.working-directory }}
       - name: Terraform Apply
         id: apply
