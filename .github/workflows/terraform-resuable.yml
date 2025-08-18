@@ -8,6 +8,10 @@ permissions:
 
 on:
   workflow_call:
+
+    secrets:
+      AWS_ASSUME_ROLE:
+        Required: true
     inputs:
       tf-version:
         required: true
